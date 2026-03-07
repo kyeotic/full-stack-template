@@ -5,6 +5,10 @@
 #-------------------------------------------
 # Configurable variables
 #-------------------------------------------
+variable "cloudflare_account_name" {
+  default = "tim@kye.dev"
+}
+
 variable "region" {
   default = "us-west-2"
 }
