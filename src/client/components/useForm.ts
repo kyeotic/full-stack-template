@@ -10,17 +10,17 @@ export function useForm<T extends { [K in keyof T]: string | boolean }>(
   }
 
   function clearField(field: keyof T) {
-    // @ts-ignore
+    // @ts-expect-error solid-js store partial update
     setForm(field, '')
   }
 
   const updateField = (field: keyof T) => (event: Event) => {
     const inputElement = event.currentTarget as HTMLInputElement
     if (inputElement.type === 'checkbox') {
-      // @ts-ignore
+      // @ts-expect-error solid-js store partial update
       setForm(field, !!inputElement.checked)
     } else {
-      // @ts-ignore
+      // @ts-expect-error solid-js store partial update
       setForm(field, inputElement.value)
     }
   }

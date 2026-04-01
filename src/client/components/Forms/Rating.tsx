@@ -1,5 +1,5 @@
 import { createFormControl, IFormControl } from 'solid-forms'
-import { createEffect, For, JSX, mergeProps, Show, splitProps } from 'solid-js'
+import { For, JSX, mergeProps, Show, splitProps } from 'solid-js'
 import Label from '../Label/Label'
 import Rating from '../Rating'
 let ratingId = 1
@@ -11,7 +11,7 @@ export default function RatingControl(props: {
 }): JSX.Element {
   // here we provide a default form control in case the user doesn't supply one
 
-  let [local, rest] = splitProps(
+  let [local, _rest] = splitProps(
     mergeProps(
       { control: createFormControl(0), type: 'text', id: `rr-${ratingId++}` },
       props,

@@ -7,7 +7,7 @@ export async function withRollback<T extends () => Promise<R>, R>(
 ): Promise<R> {
   try {
     return await action()
-  } catch (e: any) {
+  } catch (e: unknown) {
     const r = await onFail()
     if (rethrow) throw e
     return r

@@ -9,7 +9,7 @@ import {
   type KVStore,
 } from '../util/kv'
 import { authConfig } from '../config'
-import { ExternalId, User, UserProfile } from './types'
+import { User, UserProfile } from './types'
 
 const AUTH0_SOURCE = 'auth0-kyeotek'
 

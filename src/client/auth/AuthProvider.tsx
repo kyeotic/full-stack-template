@@ -53,7 +53,7 @@ export function AuthProvider(
 
     if (params.has('code')) {
       // console.log('trying redirect handle')
-      const redirectResult = await auth0.handleRedirectCallback()
+      await auth0.handleRedirectCallback()
       // console.log('redirect', redirectResult)
       stripAuthRedirectParams()
     }
@@ -62,13 +62,14 @@ export function AuthProvider(
       const token = await client.getTokenSilently(authConfig)
       // console.log('auth done', store.hasInitialized, token)
       setStore({ token })
-    } catch (error: any) {
+    } catch (error: unknown) {
       setStore({ hasInitialized: true })
+      const err = error as { error?: string }
       if (
-        error.error !== 'login_required' &&
-        error.error !== 'missing_refresh_token'
+        err.error !== 'login_required' &&
+        err.error !== 'missing_refresh_token'
       ) {
-        console.log('auth error', error.error, error)
+        console.log('auth error', err.error, err)
         // return client.loginWithRedirect()
         throw error
       }

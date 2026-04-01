@@ -12,13 +12,13 @@ export interface Stores {
 }
 
 interface AppData {
-  self: any
+  self: unknown
 }
 
 const { use: useStores, Provider: StoresProvider } = requiredContext<
   Stores,
   ParentProps
->('AppStores', (props) => {
+>('AppStores', (_props) => {
   const trpc = useTrpc()
   const appData = trpc.users.appData.query()
 

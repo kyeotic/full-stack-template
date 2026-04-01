@@ -1,12 +1,11 @@
-import { ErrorBoundary, JSX, onMount, ParentProps } from 'solid-js'
+import { ErrorBoundary, JSX, ParentProps } from 'solid-js'
 import { MODAL_ROOT_ID } from '../components/Modal/Modal'
-import { useNavigate } from '@solidjs/router'
 import { Toaster } from 'solid-toast'
 
 import NavBar from './NavBar'
 import Auth from '../auth/Auth'
 import { Routes } from './routes'
-import { StoresProvider, useStores } from '../data/stores'
+import { StoresProvider } from '../data/stores'
 import { TrpcProvider } from '../data/trpc'
 
 export default function Root() {

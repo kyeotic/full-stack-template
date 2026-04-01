@@ -16,7 +16,7 @@ export default function Select(
     labelClass?: string
   },
 ): JSX.Element {
-  let [local, rest] = splitProps(
+  let [local, _rest] = splitProps(
     mergeProps(
       {
         control: createFormControl<string[]>([]),
@@ -37,7 +37,7 @@ export default function Select(
     //   return value.label
     // },
     // key: 'name',
-    format: (item: SelectOption, type) => {
+    format: (item: SelectOption, _type) => {
       // console.log('formatting', type, item)
       return item?.label ?? ''
       // return type === 'value' ? item.label : item.label

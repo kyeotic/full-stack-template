@@ -12,7 +12,7 @@ export default function ColorPicker(
     labelClass?: string
   },
 ): JSX.Element {
-  const [local, rest] = splitProps(
+  const [local, _rest] = splitProps(
     mergeProps(
       {
         control: createFormControl(''),

@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, type JSX } from 'solid-js'
+import { createEffect, createSignal, type JSX } from 'solid-js'
 import { supabase } from './supabase'
 
 interface Props {

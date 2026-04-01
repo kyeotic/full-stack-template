@@ -1,8 +1,6 @@
 import {
-  Show,
   mergeProps,
   splitProps,
-  For,
   type JSX,
   createSignal,
   Switch,
@@ -26,7 +24,7 @@ export default function EditableLabel(
 ): JSX.Element {
   // here we provide a default form control in case the user doesn't supply one
 
-  const [local, rest] = splitProps(
+  const [local, _rest] = splitProps(
     mergeProps({ control: createFormControl(''), type: 'text' }, props),
     ['control', 'class', 'label', 'labelClass', 'type', 'id'],
   )

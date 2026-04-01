@@ -3,8 +3,6 @@ import { useAuth } from './AuthProvider.tsx'
 
 import Login from './Login.tsx'
 import { PageLoader } from '../components/index.ts'
-import { StoresProvider } from '../data/stores.tsx'
-import { TrpcProvider } from '../data/trpc.tsx'
 
 export default function Auth(props: ParentProps): JSX.Element {
   const { store, init } = useAuth()

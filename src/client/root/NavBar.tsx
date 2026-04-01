@@ -1,5 +1,5 @@
 import { A } from '@solidjs/router'
-import { PLAYERS, USER_PROFILE, UTIL } from './routes'
+import { PLAYERS, USER_PROFILE } from './routes'
 import classnames from 'classnames'
 
 import { ThemeToggle } from '../components'
