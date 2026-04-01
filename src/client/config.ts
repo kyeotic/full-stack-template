@@ -6,7 +6,7 @@ const origin = window.location.origin
 export default {
   apiUrl:
     origin.includes('localhost') || origin.includes('http://127.0.0.1')
-      ? 'http://localhost:8080'
+      ? ''
       : origin,
   auth0: {
     domain: auth0Domain,

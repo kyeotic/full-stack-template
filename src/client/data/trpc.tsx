@@ -1,5 +1,5 @@
 import { createTRPCClient, httpLink } from '@trpc/client'
-import type { AppRouter } from '../../server/server.ts'
+import type { AppRouter } from '../../server/worker.ts'
 import config from '../config.ts'
 import { requiredContext } from '../util/context.tsx'
 import { ParentProps } from 'solid-js'

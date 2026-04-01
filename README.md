@@ -1,1 +1,1 @@
-# deno-deploy-template
+# full-stack-template

@@ -1,90 +1,72 @@
-import {
-  batchGet,
-  listAllValues,
-  makeSet,
-  upsert,
-  associativeIndex,
-  singularIndex,
-} from '@kyeotic/server/kv'
-import { Token } from '@kyeotic/server'
-import config from '../config.ts'
+import type { JWTPayload } from 'jose'
 import { nanoid } from 'nanoid'
-import { ExternalId, User, UserProfile } from './types.ts'
+import {
+  makeKey,
+  listAllValues,
+  batchGet,
+  kvCreate,
+  kvPut,
+  type KVStore,
+} from '../util/kv'
+import { authConfig } from '../config'
+import { ExternalId, User, UserProfile } from './types'
 
-export const USERS = makeSet('USERS')
-const USERNAMES = makeSet('USERNAMES')
-
-const EXT_ID = makeSet('EX_ID') // external identifier
 const AUTH0_SOURCE = 'auth0-kyeotek'
 
 interface ExternalIdRef {
   userId: string
 }
 
-const externalIndex = associativeIndex(
-  (_: User, ext: ExternalId) => EXT_ID(ext.source, ext.id),
-  (u: User) => u.externalIds,
-  (u: User) => ({ userId: u.id }),
-)
-
-const usernameIndex = singularIndex(
-  (u: User) => (u.profile.username ? USERNAMES(u.profile.username) : null),
-  (u: User) => u.profile?.username ?? null,
-  (u: User) => ({ userId: u.id }),
-)
-
 export default class UserStore {
-  constructor(private readonly kv: Deno.Kv) {}
+  constructor(private readonly kv: KVStore) {}
 
-  // TODO: replace this with a paging function
   async getAll(): Promise<User[]> {
-    return await listAllValues(this.kv, USERS())
+    return await listAllValues<User>(this.kv, 'USERS:')
   }
 
   async get(userId: string): Promise<User | null> {
-    return (await this.kv.get<User>(USERS(userId)))?.value
+    return await this.kv.get<User>(makeKey('USERS', userId))
   }
 
   async batchGet(userIds: string[]): Promise<User[]> {
-    return await batchGet(
+    return await batchGet<User>(
       this.kv,
-      userIds.map((u) => USERS(u)),
+      userIds.map((u) => makeKey('USERS', u)),
     )
   }
 
   async create(user: User): Promise<User> {
     if (!user.id) throw new Error('id is required')
 
-    const key = USERS(user.id)
-    const existing = await this.kv.get(key)
+    await kvCreate(this.kv, makeKey('USERS', user.id), user)
 
-    if (existing?.versionstamp) {
-      throw new Error('User already exists')
+    for (const ext of user.externalIds) {
+      await kvPut<ExternalIdRef>(
+        this.kv,
+        makeKey('EX_ID', ext.source, ext.id),
+        { userId: user.id },
+      )
     }
 
-    const txn = this.kv
-      .atomic()
-      .check({ key, versionstamp: null })
-      .set(key, user)
-
-    externalIndex(txn, user, null)
-    usernameIndex(txn, user, null)
-
-    await txn.commit()
+    if (user.profile.username) {
+      await kvPut<ExternalIdRef>(
+        this.kv,
+        makeKey('USERNAMES', user.profile.username),
+        { userId: user.id },
+      )
+    }
 
     return user
   }
 
-  async initUser(token: Token): Promise<User> {
-    if (token.iss !== config.auth.issuer)
+  async initUser(token: JWTPayload): Promise<User> {
+    if (token.iss !== authConfig.issuer)
       throw new Error('Unsupported external source')
 
-    const externalId = token.sub
+    const externalId = token.sub!
 
     const dbUser = await this.getByExternalIdentifier(AUTH0_SOURCE, externalId)
     if (dbUser) return dbUser
-
-    console.log('creating new user')
 
     const newUser: User = {
       id: nanoid(),
@@ -103,50 +85,64 @@ export default class UserStore {
   async update(user: User): Promise<User> {
     if (!user.id) throw new Error('id is required')
 
-    const key = USERS(user.id)
-    const existing = await this.kv.get<User>(key)
+    const existing = await this.get(user.id)
+    if (!existing) throw new Error('User not found')
 
-    if (!existing.value) {
-      throw new Error('User not found')
+    await kvPut(this.kv, makeKey('USERS', user.id), user)
+
+    for (const ext of existing.externalIds) {
+      const stillPresent = user.externalIds.some(
+        (e) => e.source === ext.source && e.id === ext.id,
+      )
+      if (!stillPresent) {
+        await this.kv.delete(makeKey('EX_ID', ext.source, ext.id))
+      }
+    }
+    for (const ext of user.externalIds) {
+      await kvPut<ExternalIdRef>(
+        this.kv,
+        makeKey('EX_ID', ext.source, ext.id),
+        { userId: user.id },
+      )
     }
 
-    const txn = await this.kv.atomic().check(existing).set(key, user)
-
-    externalIndex(txn, user, existing.value)
-    usernameIndex(txn, user, existing.value)
-
-    await txn.commit()
+    if (
+      existing.profile.username &&
+      existing.profile.username !== user.profile.username
+    ) {
+      await this.kv.delete(makeKey('USERNAMES', existing.profile.username))
+    }
+    if (user.profile.username) {
+      await kvPut<ExternalIdRef>(
+        this.kv,
+        makeKey('USERNAMES', user.profile.username),
+        { userId: user.id },
+      )
+    }
 
     return user
   }
 
   async updateProfile(userId: string, profile: UserProfile): Promise<void> {
-    await upsert<User>(this.kv, USERS(userId), (dbUser) => {
-      if (!dbUser) throw new Error('user does not exist')
-
-      return { ...dbUser, profile }
-    })
+    const user = await this.get(userId)
+    if (!user) throw new Error('user does not exist')
+    await this.update({ ...user, profile })
   }
 
   async getByExternalIdentifier(
     source: string,
     externalId: string,
   ): Promise<User | null> {
-    const dbId = await this.kv.get(EXT_ID(source, externalId))
-    if (!dbId.value) return null
-
-    const user = await this.kv.get(USERS((dbId.value as ExternalIdRef).userId))
-
-    return (user.value as User) ?? null
+    const ref = await this.kv.get<ExternalIdRef>(
+      makeKey('EX_ID', source, externalId),
+    )
+    if (!ref) return null
+    return await this.get(ref.userId)
   }
 
   async getByUsername(username: string): Promise<User | null> {
-    const { value: dbRef } = await this.kv.get<ExternalIdRef>(
-      USERNAMES(username),
-    )
-    if (!dbRef) return null
-
-    const user = await this.kv.get<User>(USERS(dbRef.userId))
-    return (user.value as User) ?? null
+    const ref = await this.kv.get<ExternalIdRef>(makeKey('USERNAMES', username))
+    if (!ref) return null
+    return await this.get(ref.userId)
   }
 }

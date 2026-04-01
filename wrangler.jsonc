@@ -1,0 +1,21 @@
+{
+  "name": "APP_NAME",
+  "main": "src/server/worker.ts",
+  "compatibility_date": "2025-11-17",
+  "assets": {
+    "directory": "./dist/client",
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "kv_namespaces": [
+    {
+      "binding": "APP_NAME_KV",
+      "id": "<prod-namespace-id>",
+      "preview_id": "<preview-namespace-id>"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

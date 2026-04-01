@@ -1,36 +1,26 @@
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch'
+import type { AppEnv } from './env'
+import type { KVStore } from './util/kv'
+import type { JwtVerifier } from './auth/jwt'
+import UserStore from './users/userStore'
+import PlayerStore from './players/playerStore'
+import PushStore from './webpush/pushStore'
 
-import UserStore from './users/userStore.ts'
-import PlayerStore from './players/playerStore.ts'
-import { lazy } from './util/lazy.ts'
-
-export interface InnerContext {
-  stores: {
-    users: UserStore
-    players: PlayerStore
-  }
-}
-
-// Only one context per app is needed, make sure we only ever make one
-const appContext = lazy(createContext)
-
-export async function createContext(): Promise<InnerContext> {
-  const kv = await Deno.openKv()
-  return {
+export function createAppContext(
+  env: AppEnv,
+  kv: KVStore,
+  jwtVerifier: JwtVerifier,
+) {
+  return (opts: FetchCreateContextFnOptions) => ({
+    env,
+    jwtVerifier,
     stores: {
       users: new UserStore(kv),
       players: new PlayerStore(kv),
+      push: new PushStore(kv),
     },
-  } as InnerContext
-}
-
-export async function createAppContext(opts: FetchCreateContextFnOptions) {
-  const inner = await appContext()
-
-  return {
-    ...inner,
     req: opts.req,
-  }
+  })
 }
 
-export type Context = Awaited<ReturnType<typeof createAppContext>>
+export type Context = ReturnType<ReturnType<typeof createAppContext>>

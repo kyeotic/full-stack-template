@@ -19,7 +19,7 @@ export function isNumber(raw: string): ValidationErrors | null {
 export function minLength(length: number): ValidatorFn {
   return (raw: string) => {
     if (raw.length < length) {
-      tooShort: `Must be at least ${length} long`
+      ;`Must be at least ${length} long`
     }
     return null
   }
@@ -28,7 +28,7 @@ export function minLength(length: number): ValidatorFn {
 export function maxLength(length: number): ValidatorFn {
   return (raw: string) => {
     if (raw.length > length) {
-      tooLong: `Must be less than ${length} long`
+      ;`Must be less than ${length} long`
     }
     return null
   }

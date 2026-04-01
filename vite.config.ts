@@ -7,11 +7,13 @@ export default defineConfig({
   publicDir: '../public',
   server: {
     port: 3000,
+    proxy: {
+      '/api': 'http://localhost:8787',
+    },
   },
   build: {
     target: 'esnext',
-    outDir: '../../dist',
-    // outDir: './dist',
+    outDir: '../../dist/client',
     emptyOutDir: true,
     rollupOptions: {
       input: path.join(__dirname, 'src/client/index.html'),

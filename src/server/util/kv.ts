@@ -1,84 +1,94 @@
-export function makeSet(name: string) {
-  return (...parts: string[]) => [name, ...parts]
+export interface KVStore {
+  get<T>(key: string): Promise<T | null>
+  put(key: string, value: unknown): Promise<void>
+  delete(key: string): Promise<void>
+  list(options: { prefix: string; cursor?: string }): Promise<{
+    keys: { name: string }[]
+    cursor: string | null
+    list_complete: boolean
+  }>
+}
+
+export class CloudflareKV implements KVStore {
+  constructor(private readonly ns: KVNamespace) {}
+  get<T>(key: string) {
+    return this.ns.get<T>(key, 'json')
+  }
+  async put(key: string, value: unknown) {
+    await this.ns.put(key, JSON.stringify(value))
+  }
+  delete(key: string) {
+    return this.ns.delete(key)
+  }
+  list(options: { prefix: string; cursor?: string }) {
+    return this.ns.list(options) as Promise<{
+      keys: { name: string }[]
+      cursor: string | null
+      list_complete: boolean
+    }>
+  }
+}
+
+export function makeKey(...parts: string[]): string {
+  return parts.join(':')
+}
+
+export async function listAllKeys(
+  kv: KVStore,
+  prefix: string,
+): Promise<string[]> {
+  const keys: string[] = []
+  let cursor: string | undefined
+
+  do {
+    const result = await kv.list({
+      prefix,
+      ...(cursor ? { cursor } : {}),
+    })
+    keys.push(...result.keys.map((k) => k.name))
+    cursor = result.list_complete ? undefined : (result.cursor ?? undefined)
+  } while (cursor)
+
+  return keys
 }
 
 export async function listAllValues<T>(
-  kv: Deno.Kv,
-  prefix: string[],
-  { reverse = false }: { reverse?: boolean } = {},
+  kv: KVStore,
+  prefix: string,
 ): Promise<T[]> {
-  const entries = await Array.fromAsync(kv.list({ prefix }, { reverse }))
-  return entries.map((e) => e.value as T)
+  const keys = await listAllKeys(kv, prefix)
+  const values = await Promise.all(keys.map((k) => kv.get<T>(k)))
+  return values.filter((v) => v !== null) as T[]
 }
 
-export async function create<T>(
-  kv: Deno.Kv,
-  key: string[],
-  item: T,
+export async function batchGet<T>(kv: KVStore, keys: string[]): Promise<T[]> {
+  const values = await Promise.all(keys.map((k) => kv.get<T>(k)))
+  return values.filter((v) => v !== null) as T[]
+}
+
+export async function kvCreate<T>(
+  kv: KVStore,
+  key: string,
+  value: T,
 ): Promise<T> {
   const existing = await kv.get(key)
-
-  if (existing?.versionstamp) {
-    throw new Error('Item already exists')
-  }
-
-  await kv.set(key, item)
-
-  return item
+  if (existing !== null) throw new Error(`Record already exists: ${key}`)
+  await kv.put(key, value)
+  return value
 }
 
-export async function update<T>(
-  kv: Deno.Kv,
-  key: string[],
-  item: T,
+export async function kvPut<T>(kv: KVStore, key: string, value: T): Promise<T> {
+  await kv.put(key, value)
+  return value
+}
+
+export async function kvUpdate<T>(
+  kv: KVStore,
+  key: string,
+  value: T,
 ): Promise<T> {
   const existing = await kv.get(key)
-
-  if (!existing) {
-    throw new Error('Subscription not found')
-  }
-
-  await kv.set(key, item)
-
-  return item
-}
-
-export async function put<T>(kv: Deno.Kv, key: string[], item: T): Promise<T> {
-  await kv.set(key, item)
-
-  return item
-}
-
-export async function upsert<T>(
-  kv: Deno.Kv,
-  key: string[],
-  merge: (existing: T | null) => T,
-): Promise<T> {
-  const existing = await kv.get(key)
-  const item = merge((existing?.value as T) ?? null)
-
-  await kv.set(key, item)
-  return item
-}
-
-/**
- * Delete all records from the Deno.kv store
- *
- * DANGER: this will DELETE EVERYTHING
- *
- * Use options.prefix to delete only the prefixed items
- */
-export async function deleteEntireDb(
-  kv: Deno.Kv,
-  { debug = false, prefix = [] }: { debug?: boolean; prefix?: string[] } = {},
-): Promise<void> {
-  const keys = kv.list({ prefix })
-  let count = 0
-  if (debug) console.log('starting delete')
-  for await (const entry of keys) {
-    if (debug) console.log(`deleting ${entry.key}`)
-    await kv.delete(entry.key)
-    count++
-  }
-  if (debug) console.log(`${count} records deleted`)
+  if (existing === null) throw new Error(`Record not found: ${key}`)
+  await kv.put(key, value)
+  return value
 }

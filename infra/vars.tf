@@ -21,6 +21,10 @@ variable "zone_name" {
   default = "kye.dev"
 }
 
-variable "deno_deploy_acme" {
-  default = "84e3160caf2e7082aeb72eb8._acme.deno.dev."
+variable "app_name" {
+  default = "APP_NAME"
+}
+
+variable "cloudflare_api_token" {
+  sensitive = true
 }

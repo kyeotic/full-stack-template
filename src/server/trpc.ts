@@ -1,17 +1,9 @@
 import { initTRPC, TRPCError } from '@trpc/server'
-import { createJwtVerifier } from '@kyeotic/server'
 import superjson from 'superjson'
-
-import { Context } from './context.ts'
-import config from './config.ts'
+import type { Context } from './context'
 
 const t = initTRPC.context<Context>().create({
   transformer: superjson,
-})
-
-const verifyJwt = createJwtVerifier({
-  issuer: config.auth.issuer,
-  audience: config.auth.audience,
 })
 
 export const router = t.router
@@ -23,10 +15,8 @@ export const authProcedure = t.procedure.use(async function isAuthed(opts) {
     const authHeader = ctx.req.headers.get('authorization')
     if (!authHeader) throw new Error('authorization required')
 
-    const token = await verifyJwt(authHeader)
+    const token = await ctx.jwtVerifier.verify(authHeader)
     const user = await ctx.stores.users.initUser(token)
-
-    console.log('loading user', user)
 
     return opts.next({
       ctx: {

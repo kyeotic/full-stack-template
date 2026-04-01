@@ -1,5 +1,5 @@
-import { router, authProcedure } from '../trpc.ts'
-import { PlayerSchema } from './types.ts'
+import { router, authProcedure } from '../trpc'
+import { PlayerSchema } from './types'
 
 export const playerRouter = router({
   getAll: authProcedure.query(async ({ ctx: { user, stores } }) => {
