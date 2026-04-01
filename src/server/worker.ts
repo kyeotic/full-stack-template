@@ -2,24 +2,40 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
 
-import { router } from './trpc'
 import { createAppContext } from './context'
-import { playerRouter } from './players/routes'
-import { userRouter } from './users/userRoutes'
-import { webPushRouter } from './webpush/routes'
+import { appRouter } from './router'
 import type { WorkerEnv } from './types'
-import { CloudflareEnv } from './env'
-import { CloudflareKV } from './util/kv'
+import type { AppEnv } from './env'
+import type { KVStore } from './util/kv'
 import { CloudflareAssets } from './assets'
 import { Auth0JwtVerifier } from './auth/jwt'
 
-const appRouter = router({
-  players: playerRouter,
-  users: userRouter,
-  webpush: webPushRouter,
-})
+class CloudflareEnv implements AppEnv {
+  constructor(private readonly env: WorkerEnv) {}
+  get webpushKeysJson() {
+    return this.env.WEBPUSH_KEYS_JSON
+  }
+}
 
-export type AppRouter = typeof appRouter
+class CloudflareKV implements KVStore {
+  constructor(private readonly ns: KVNamespace) {}
+  get<T>(key: string) {
+    return this.ns.get<T>(key, 'json')
+  }
+  async put(key: string, value: unknown) {
+    await this.ns.put(key, JSON.stringify(value))
+  }
+  delete(key: string) {
+    return this.ns.delete(key)
+  }
+  list(options: { prefix: string; cursor?: string }) {
+    return this.ns.list(options) as Promise<{
+      keys: { name: string }[]
+      cursor: string | null
+      list_complete: boolean
+    }>
+  }
+}
 
 const app = new Hono<{ Bindings: WorkerEnv }>()
 
@@ -38,6 +54,6 @@ app.all('/api/*', async (c) => {
   })
 })
 
-app.get('*', (c) => new CloudflareAssets(c.env.ASSETS).fetch(c.req.raw))
+app.get('*', CloudflareAssets())
 
 export default app

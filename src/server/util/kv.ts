@@ -9,26 +9,6 @@ export interface KVStore {
   }>
 }
 
-export class CloudflareKV implements KVStore {
-  constructor(private readonly ns: KVNamespace) {}
-  get<T>(key: string) {
-    return this.ns.get<T>(key, 'json')
-  }
-  async put(key: string, value: unknown) {
-    await this.ns.put(key, JSON.stringify(value))
-  }
-  delete(key: string) {
-    return this.ns.delete(key)
-  }
-  list(options: { prefix: string; cursor?: string }) {
-    return this.ns.list(options) as Promise<{
-      keys: { name: string }[]
-      cursor: string | null
-      list_complete: boolean
-    }>
-  }
-}
-
 export function makeKey(...parts: string[]): string {
   return parts.join(':')
 }

@@ -5,6 +5,7 @@ import { useTrpc } from './trpc'
 
 import { PlayerStore } from '../players/store'
 import { UserStore } from '../user/store'
+import type { User } from '../../server/users/types'
 
 export interface Stores {
   players: PlayerStore
@@ -12,7 +13,7 @@ export interface Stores {
 }
 
 interface AppData {
-  self: unknown
+  self: User
 }
 
 const { use: useStores, Provider: StoresProvider } = requiredContext<

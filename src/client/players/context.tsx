@@ -1,5 +1,5 @@
 import { type ParentProps } from 'solid-js'
-import { Player } from '../tournaments/types'
+import { Player } from '../../server/players/types'
 import { optionalContext } from '../util/context'
 
 const { use: usePlayer, Provider: PlayerProvider } = optionalContext(

@@ -36,3 +36,5 @@ const publicKey = encodeBase64Url(rawKey)
 
 console.log('WEBPUSH_KEYS_JSON', keysJson)
 console.log('publicKey', publicKey)
+
+export {}

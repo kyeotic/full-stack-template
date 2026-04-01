@@ -42,7 +42,7 @@ export function NewPlayerForm(): JSX.Element {
 }
 
 export function PlayerList(): JSX.Element {
-  const store = usePlayerStore()
+  const { players: store } = useStores()
 
   return (
     <div>
@@ -54,7 +54,7 @@ export function PlayerList(): JSX.Element {
         </Show>
         <div class="flex flex-col gap-4 mt-4">
           <For each={store.players}>
-            {(player) => <LabelItem label="Name" text={player.name} />}
+            {(player) => <LabelItem label="Name">{player.name}</LabelItem>}
           </For>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Player } from '../tournaments/types'
+import { Player } from '../../server/players/types'
 import { SignalStore } from '../data/signalStore'
 import { TrpcAppClient } from '../data/trpc'
 import { nanoid } from 'nanoid'

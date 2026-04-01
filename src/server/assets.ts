@@ -1,10 +1,6 @@
-export interface AssetFetcher {
-  fetch(req: Request): Promise<Response>
-}
+import type { Context } from 'hono'
+import type { WorkerEnv } from './types'
 
-export class CloudflareAssets implements AssetFetcher {
-  constructor(private readonly assets: Fetcher) {}
-  fetch(req: Request) {
-    return this.assets.fetch(req)
-  }
+export function CloudflareAssets() {
+  return (c: Context<{ Bindings: WorkerEnv }>) => c.env.ASSETS.fetch(c.req.raw)
 }
