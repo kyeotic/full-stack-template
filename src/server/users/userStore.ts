@@ -1,13 +1,6 @@
 import type { JWTPayload } from 'jose'
 import { nanoid } from 'nanoid'
-import {
-  makeKey,
-  listAllValues,
-  batchGet,
-  kvCreate,
-  kvPut,
-  type KVStore,
-} from '../util/kv'
+import { makeKey, type KvStore } from '../store/cloudflareKv'
 import { authConfig } from '../config'
 import { User, UserProfile } from './types'
 
@@ -18,10 +11,10 @@ interface ExternalIdRef {
 }
 
 export default class UserStore {
-  constructor(private readonly kv: KVStore) {}
+  constructor(private readonly kv: KvStore) {}
 
   async getAll(): Promise<User[]> {
-    return await listAllValues<User>(this.kv, 'USERS:')
+    return await this.kv.listAllValues<User>('USERS:')
   }
 
   async get(userId: string): Promise<User | null> {
@@ -29,31 +22,24 @@ export default class UserStore {
   }
 
   async batchGet(userIds: string[]): Promise<User[]> {
-    return await batchGet<User>(
-      this.kv,
-      userIds.map((u) => makeKey('USERS', u)),
-    )
+    return await this.kv.batchGet<User>(userIds.map((u) => makeKey('USERS', u)))
   }
 
   async create(user: User): Promise<User> {
     if (!user.id) throw new Error('id is required')
 
-    await kvCreate(this.kv, makeKey('USERS', user.id), user)
+    await this.kv.create(makeKey('USERS', user.id), user)
 
     for (const ext of user.externalIds) {
-      await kvPut<ExternalIdRef>(
-        this.kv,
-        makeKey('EX_ID', ext.source, ext.id),
-        { userId: user.id },
-      )
+      await this.kv.put(makeKey('EX_ID', ext.source, ext.id), {
+        userId: user.id,
+      })
     }
 
     if (user.profile.username) {
-      await kvPut<ExternalIdRef>(
-        this.kv,
-        makeKey('USERNAMES', user.profile.username),
-        { userId: user.id },
-      )
+      await this.kv.put(makeKey('USERNAMES', user.profile.username), {
+        userId: user.id,
+      })
     }
 
     return user
@@ -88,7 +74,7 @@ export default class UserStore {
     const existing = await this.get(user.id)
     if (!existing) throw new Error('User not found')
 
-    await kvPut(this.kv, makeKey('USERS', user.id), user)
+    await this.kv.put(makeKey('USERS', user.id), user)
 
     for (const ext of existing.externalIds) {
       const stillPresent = user.externalIds.some(
@@ -99,11 +85,9 @@ export default class UserStore {
       }
     }
     for (const ext of user.externalIds) {
-      await kvPut<ExternalIdRef>(
-        this.kv,
-        makeKey('EX_ID', ext.source, ext.id),
-        { userId: user.id },
-      )
+      await this.kv.put(makeKey('EX_ID', ext.source, ext.id), {
+        userId: user.id,
+      })
     }
 
     if (
@@ -113,11 +97,9 @@ export default class UserStore {
       await this.kv.delete(makeKey('USERNAMES', existing.profile.username))
     }
     if (user.profile.username) {
-      await kvPut<ExternalIdRef>(
-        this.kv,
-        makeKey('USERNAMES', user.profile.username),
-        { userId: user.id },
-      )
+      await this.kv.put(makeKey('USERNAMES', user.profile.username), {
+        userId: user.id,
+      })
     }
 
     return user

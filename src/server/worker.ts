@@ -4,38 +4,14 @@ import { fetchRequestHandler } from '@trpc/server/adapters/fetch'
 
 import { createAppContext } from './context'
 import { appRouter } from './router'
-import type { WorkerEnv } from './types'
-import type { AppEnv } from './env'
-import type { KVStore } from './util/kv'
-import { CloudflareAssets } from './assets'
+import { createConfig, type WorkerEnv } from './config'
+import { CloudflareKv } from './store/cloudflareKv'
 import { Auth0JwtVerifier } from './auth/jwt'
 
-class CloudflareEnv implements AppEnv {
-  constructor(private readonly env: WorkerEnv) {}
-  get webpushKeysJson() {
-    return this.env.WEBPUSH_KEYS_JSON
-  }
-}
-
-class CloudflareKV implements KVStore {
-  constructor(private readonly ns: KVNamespace) {}
-  get<T>(key: string) {
-    return this.ns.get<T>(key, 'json')
-  }
-  async put(key: string, value: unknown) {
-    await this.ns.put(key, JSON.stringify(value))
-  }
-  delete(key: string) {
-    return this.ns.delete(key)
-  }
-  list(options: { prefix: string; cursor?: string }) {
-    return this.ns.list(options) as Promise<{
-      keys: { name: string }[]
-      cursor: string | null
-      list_complete: boolean
-    }>
-  }
-}
+// This is the CLOUDFLARE runtime
+// ALL knowledge of cloudflare should live here
+// the rest of the codebase should be agnostic to it
+// That way other runtimes can use other entrypoints without needing to change the rest of the codebase
 
 const app = new Hono<{ Bindings: WorkerEnv }>()
 
@@ -47,13 +23,13 @@ app.all('/api/*', async (c) => {
     req: c.req.raw,
     router: appRouter,
     createContext: createAppContext(
-      new CloudflareEnv(c.env),
-      new CloudflareKV(c.env.APP_NAME_KV),
+      createConfig(c.env),
+      new CloudflareKv(c.env.APP_NAME_KV),
       new Auth0JwtVerifier(),
     ),
   })
 })
 
-app.get('*', CloudflareAssets())
+app.get('*', (c) => c.env.ASSETS.fetch(c.req.raw))
 
 export default app

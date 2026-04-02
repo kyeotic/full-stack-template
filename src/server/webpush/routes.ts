@@ -12,7 +12,7 @@ export const webPushRouter = router({
   }),
   create: authProcedure
     .input(PushSubscriptionSchema)
-    .mutation(async ({ input, ctx: { user, stores, env } }) => {
+    .mutation(async ({ input, ctx: { user, stores, config } }) => {
       console.log('[webpush] create: storing subscription for user', user.id)
       const newSub = await stores.push.create(user.id, {
         ...input,
@@ -24,7 +24,7 @@ export const webPushRouter = router({
       )
 
       try {
-        await sendPush(env.webpushKeysJson, newSub, {
+        await sendPush(config.webpushKeysJson, newSub, {
           title: 'Subscribed',
           body: 'You are now subscribed to Push Notifications',
         })
@@ -43,19 +43,19 @@ export const webPushRouter = router({
     }),
   sendTest: authProcedure
     .input(z.string())
-    .mutation(async ({ input: id, ctx: { user, stores, env } }) => {
+    .mutation(async ({ input: id, ctx: { user, stores, config } }) => {
       const subs = await stores.push.getForUser(user.id)
       const sub = subs.find((s) => s.id === id)
       if (!sub) {
         throw new Error('Subscription not found')
       }
-      await sendPush(env.webpushKeysJson, sub, {
+      await sendPush(config.webpushKeysJson, sub, {
         title: 'Test Notification',
         body: 'This is a test push notification',
       })
     }),
-  getVapidKey: publicProcedure.query(async ({ ctx: { env } }) => {
-    const { publicKey } = await getWebpushKeys(env.webpushKeysJson)
+  getVapidKey: publicProcedure.query(async ({ ctx: { config } }) => {
+    const { publicKey } = await getWebpushKeys(config.webpushKeysJson)
     return publicKey
   }),
 })

@@ -1,21 +1,14 @@
-import { makeKey, listAllValues, kvCreate, type KVStore } from '../util/kv'
+import { makeKey, type KvStore } from '../store/cloudflareKv'
 import { Player } from './types'
 
 export default class PlayerStore {
-  constructor(private readonly kv: KVStore) {}
+  constructor(private readonly kv: KvStore) {}
 
   async getForUser(userId: string): Promise<Player[]> {
-    return await listAllValues<Player>(
-      this.kv,
-      makeKey('PLAYERS', userId) + ':',
-    )
+    return await this.kv.listAllValues<Player>(makeKey('PLAYERS', userId) + ':')
   }
 
   async create(userId: string, player: Player): Promise<Player> {
-    return await kvCreate(
-      this.kv,
-      makeKey('PLAYERS', userId, player.id),
-      player,
-    )
+    return await this.kv.create(makeKey('PLAYERS', userId, player.id), player)
   }
 }
