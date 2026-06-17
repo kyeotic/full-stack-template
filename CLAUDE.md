@@ -11,6 +11,18 @@ When working ALWAYS start by making a markdown plan in thoughts/ unless the user
 DO NOT READ the .env file, it contains secrets that should NEVER be in the claude context
 They are part of the ENV VARs, so you can use them (WITHOUT READING THEM INTO CONTEXT)
 
+## Template Setup (after clone)
+
+This is a template. Two placeholder tokens must be find+replaced after cloning.
+They are kept distinct so `APP_NAME_KV` (a real binding identifier referenced as a
+JS property) is never touched by the replace:
+
+- `APP_TMP_ID` — slug-safe identifiers (npm name, worker name, domain). e.g. `chore-tracker`
+- `APP_TMP_NAME` — friendly display names (PWA name, page title). e.g. `Chore Tracker`
+
+Replace `APP_TMP_ID` first, then `APP_TMP_NAME`. Do NOT replace `APP_NAME_KV` — it is
+the KV binding name (see Environment Variables) and must stay as-is.
+
 ## Commands
 
 ```bash

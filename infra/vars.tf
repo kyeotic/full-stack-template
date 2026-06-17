@@ -14,7 +14,7 @@ variable "region" {
 }
 
 variable "domain_name" {
-  default = "APP_NAME.kye.dev"
+  default = "APP_TMP_ID.kye.dev"
 }
 
 variable "zone_name" {
@@ -22,7 +22,7 @@ variable "zone_name" {
 }
 
 variable "app_name" {
-  default = "APP_NAME"
+  default = "APP_TMP_ID"
 }
 
 variable "cloudflare_api_token" {

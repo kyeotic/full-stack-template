@@ -1,5 +1,5 @@
 {
-  "name": "APP_NAME",
+  "name": "APP_TMP_ID",
   "scripts": {
     "dev:frontend": "vite",
     "dev:backend": "wrangler dev --var WEBPUSH_KEYS_JSON:$WEBPUSH_KEYS_JSON",

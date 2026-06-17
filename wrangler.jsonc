@@ -1,5 +1,5 @@
 {
-  "name": "APP_NAME",
+  "name": "APP_TMP_ID",
   "main": "src/server/worker.ts",
   "compatibility_date": "2025-11-17",
   "assets": {
