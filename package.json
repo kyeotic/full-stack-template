@@ -9,6 +9,7 @@
     "deploy": "run-s build deploy:worker",
     "deploy:worker": "wrangler deploy",
     "deploy:infra": "./infra/deploy",
+    "cf:init": "node scripts/cf-init.mjs",
     "push-secrets": "echo $WEBPUSH_KEYS_JSON | npx wrangler secret put WEBPUSH_KEYS_JSON",
     "keygen": "node --input-type=module < src/server/webpush/keygen.ts",
     "check": "run-s style lint types",
