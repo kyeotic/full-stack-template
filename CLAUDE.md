@@ -78,6 +78,16 @@ This is a full-stack SolidJS + Cloudflare Workers app using tRPC for type-safe R
 
 **Infrastructure:** Terraform with AWS S3 backend (state) and Cloudflare provider (DNS/Workers domain).
 
+## UI Components & Reuse
+
+The client has a shared component library under `src/client/components/` (barrel-exported from `src/client/components/index.ts`). **Reuse these instead of writing raw HTML elements with hand-rolled Tailwind classes** — they encode the dark-mode-aware colors, spacing, and typography for the app.
+
+- **Typography** (`components/Typography/`): use `H1`–`H6` for headings, and `Text` / `Paragraph` for body copy. These apply `bodyStyle()` / `headerStyle()` from `font.ts`, which include the `dark:` text colors. Do **not** use bare `<p>`/`<span>`/`<label>` for visible text — they inherit near-black and disappear in dark mode.
+- **Forms** (`components/Forms/`): `TextInput`, `Select`, `ColorPicker`, `MultiSelect`, `EditableLabel`. Forms are built with `solid-forms` (`createFormGroup` / `createFormControl`); controls are passed via the `control` prop. Any custom `<input>`/`<select>` must match `TextInput`'s field styling so heights/borders align in a row.
+- **Other**: `Button` (variant/`primary`/`danger`/`small` props), `Label`, `LabelItem`, `Modal`, `PageLoader`, `SpinnerIcon`, `Toggle`, `ThemeToggle`, and `toast` for notifications.
+
+Per-feature client state lives in a `SignalStore` subclass (`data/signalStore.ts`), exposed through the `useStores()` context (`data/stores.tsx`) and seeded from `users.appData`.
+
 ## TypeScript Configuration
 
 Two separate tsconfigs:
