@@ -12,6 +12,9 @@ terraform_state_bucket="terraform-remote-$AWS_ACCOUNT_ID"
 
 export $(grep -v '^#' $_project/.env | xargs)
 
+# Sourced from .vault-env
+export TF_VAR_cloudflare_api_token=$CLOUDFLARE_API_TOKEN
+
 pushd "${_infra}"
 
 terraform init \
