@@ -3,7 +3,7 @@ import { createFormControl, type IFormControl } from 'solid-forms'
 
 import Label from '../Label/Label'
 import { default as Input } from '../TextInput/TextInput'
-import classnames from 'classnames'
+import clsx from 'clsx'
 
 export default function TextInput(
   props: JSX.InputHTMLAttributes<HTMLInputElement> & {
@@ -22,7 +22,7 @@ export default function TextInput(
 
   return (
     <div
-      class={classnames('mb-2', props.containerClass ?? '')}
+      class={clsx('mb-2', props.containerClass ?? '')}
       classList={{
         'is-invalid': !!local.control.errors,
         'is-touched': local.control.isTouched,

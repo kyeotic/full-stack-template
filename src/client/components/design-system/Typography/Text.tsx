@@ -1,4 +1,4 @@
-import classnames from 'classnames'
+import clsx from 'clsx'
 import { type JSX, type ParentProps, splitProps } from 'solid-js'
 import { bodyStyle, mutedStyle, strongStyle } from './font'
 import { A } from '@solidjs/router'
@@ -19,12 +19,12 @@ function textStyle(props: Props): string {
 
 export function Text(props: Props): JSX.Element {
   const [local, rest] = splitProps(props, ['class', 'muted', 'strong'])
-  return <span class={classnames(textStyle(local), local.class)} {...rest} />
+  return <span class={clsx(textStyle(local), local.class)} {...rest} />
 }
 
 export function Paragraph(props: Props): JSX.Element {
   const [local, rest] = splitProps(props, ['class'])
-  return <span class={classnames(local.class, 'mb-2', bodyStyle())} {...rest} />
+  return <span class={clsx(local.class, 'mb-2', bodyStyle())} {...rest} />
 }
 
 export function Link(

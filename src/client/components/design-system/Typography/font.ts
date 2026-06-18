@@ -1,9 +1,9 @@
-import classnames from 'classnames'
+import clsx from 'clsx'
 
 // Primary high-contrast text color, dark-mode aware. Shared by headings,
 // strong body text, and form-field input text — define the token once here.
 export function textColor(...classes: string[]): string {
-  return classnames('text-gray-900 dark:text-white', ...classes)
+  return clsx('text-gray-900 dark:text-white', ...classes)
 }
 
 export function headerStyle(): string {
@@ -11,7 +11,7 @@ export function headerStyle(): string {
 }
 
 export function bodyStyle(...classes: string[]): string {
-  return classnames('text-gray-600 dark:text-gray-400', ...classes)
+  return clsx('text-gray-600 dark:text-gray-400', ...classes)
 }
 
 // Emphasized body text — names, key values, inline highlights.
@@ -21,5 +21,5 @@ export function strongStyle(...classes: string[]): string {
 
 // De-emphasized body text — hints, secondary status, captions.
 export function mutedStyle(...classes: string[]): string {
-  return classnames('text-gray-400 dark:text-gray-500', ...classes)
+  return clsx('text-gray-400 dark:text-gray-500', ...classes)
 }

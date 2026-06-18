@@ -52,7 +52,7 @@
     "@thednp/solid-color-picker": "^0.0.14",
     "@thisbeyond/solid-select": "^0.15.0",
     "@trpc/client": "^11.0.0",
-    "classnames": "^2.3.2",
+    "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "date-fns": "^2.29.3",
     "hono": "^4.0.0",

@@ -1,4 +1,4 @@
-import classnames from 'classnames'
+import clsx from 'clsx'
 import { textColor } from './Typography/font'
 
 /**
@@ -14,12 +14,12 @@ export const radius = {
 
 /** Default dark-mode-aware border for bordered surfaces. */
 export function borderStyle(...classes: string[]): string {
-  return classnames('border border-gray-200 dark:border-gray-700', ...classes)
+  return clsx('border border-gray-200 dark:border-gray-700', ...classes)
 }
 
 /** Lighter border for in-list dividers / row separators. */
 export function dividerStyle(...classes: string[]): string {
-  return classnames('border-gray-100 dark:border-gray-800', ...classes)
+  return clsx('border-gray-100 dark:border-gray-800', ...classes)
 }
 
 /**
@@ -27,7 +27,7 @@ export function dividerStyle(...classes: string[]): string {
  * fixed widths.
  */
 export function cardStyle(...classes: string[]): string {
-  return classnames(radius.lg, borderStyle(), 'p-4', ...classes)
+  return clsx(radius.lg, borderStyle(), 'p-4', ...classes)
 }
 
 export type CalloutTone = 'neutral' | 'info' | 'warning'
@@ -43,7 +43,7 @@ export function calloutStyle(
   tone: CalloutTone = 'neutral',
   ...classes: string[]
 ): string {
-  return classnames(radius.lg, calloutTones[tone], ...classes)
+  return clsx(radius.lg, calloutTones[tone], ...classes)
 }
 
 /**
@@ -52,7 +52,7 @@ export function calloutStyle(
  * rather than a fixed width.
  */
 export function fieldStyle(...classes: string[]): string {
-  return classnames(
+  return clsx(
     'block w-full p-2.5 text-sm',
     'bg-gray-50 dark:bg-gray-700',
     'border border-gray-300 dark:border-gray-600',

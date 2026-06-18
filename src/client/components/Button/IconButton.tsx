@@ -1,5 +1,5 @@
 import { type JSX, mergeProps, splitProps } from 'solid-js'
-import classnames from 'classnames'
+import clsx from 'clsx'
 
 interface IconButtonProps {
   icon: string
@@ -10,7 +10,7 @@ export function iconButtonStyle(
   props: IconButtonProps,
   ...classes: string[]
 ): string {
-  return classnames(
+  return clsx(
     'text-slate-700 font-bold rounded-sm inline-block cursor-pointer touch-manipulation',
     'hover:bg-slate-700 hover:text-white',
     props.small ? 'py-1 px-2' : 'py-2 px-4',
@@ -29,7 +29,7 @@ export default function IconButton(
     ['class', 'icon', 'small'],
   )
   return (
-    <button {...rest} class={classnames(local.class, iconButtonStyle(local))}>
+    <button {...rest} class={clsx(local.class, iconButtonStyle(local))}>
       <i class={local.icon} />
     </button>
   )

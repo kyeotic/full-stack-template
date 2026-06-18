@@ -1,6 +1,6 @@
 import { A } from '@solidjs/router'
 import { PLAYERS, USER_PROFILE } from './routes'
-import classnames from 'classnames'
+import clsx from 'clsx'
 
 import { ThemeToggle } from '../components'
 import { createSignal, For, type JSX } from 'solid-js'
@@ -98,7 +98,7 @@ export default function NavBar() {
       <div
         id="mega-menu"
         onclick={() => setMenuOpen(false)}
-        class={classnames(
+        class={clsx(
           'items-center justify-between w-full min-w-screen flex order-1 bg-green-700 sm:hidden',
           { hidden: !isMenuOpen() },
         )}
@@ -138,7 +138,7 @@ function ProfileLink(props: { isMenu?: boolean }): JSX.Element {
     >
       <i class="fa-solid fa-user pr-2 h-full" />
       <span
-        class={classnames('flex-0 font-bold  pl-2', {
+        class={clsx('flex-0 font-bold  pl-2', {
           'text-xl': props.isMenu,
         })}
       >

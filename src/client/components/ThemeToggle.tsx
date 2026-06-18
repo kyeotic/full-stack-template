@@ -1,4 +1,4 @@
-import classnames from 'classnames'
+import clsx from 'clsx'
 import { createSignal, JSX } from 'solid-js'
 
 const initialTheme =
@@ -28,7 +28,7 @@ export default function ThemeToggle(): JSX.Element {
       onclick={toggle}
     >
       <svg
-        class={classnames(' w-5 h-5', { hidden: theme() !== 'dark' })}
+        class={clsx(' w-5 h-5', { hidden: theme() !== 'dark' })}
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +36,7 @@ export default function ThemeToggle(): JSX.Element {
         <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
       </svg>
       <svg
-        class={classnames(' w-5 h-5', { hidden: theme() !== 'light' })}
+        class={clsx(' w-5 h-5', { hidden: theme() !== 'light' })}
         fill="currentColor"
         viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg"

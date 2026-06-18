@@ -1,5 +1,5 @@
 import { type JSX, mergeProps, splitProps } from 'solid-js'
-import classnames from 'classnames'
+import clsx from 'clsx'
 
 type ButtonVariant =
   | 'default'
@@ -58,7 +58,7 @@ export function buttonStyle(
   if (props.primary) variant = 'primary'
   if (props.danger) variant = 'danger'
 
-  return classnames(
+  return clsx(
     'text-white font-bold rounded-sm inline-block touch-manipulation',
     props.small ? 'py-1 px-2' : 'py-2 px-4',
     variantStyles[variant],
@@ -76,7 +76,5 @@ export default function Button(
     ),
     ['class', 'variant', 'primary', 'danger', 'small'],
   )
-  return (
-    <button {...rest} class={classnames(local.class, buttonStyle(local))} />
-  )
+  return <button {...rest} class={clsx(local.class, buttonStyle(local))} />
 }
