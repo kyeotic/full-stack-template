@@ -12,7 +12,7 @@ import { createFormControl, type IFormControl } from 'solid-forms'
 import Label from '../Label/Label'
 import TextInput from './TextInput'
 import IconButton from '../Button/IconButton'
-import { Text, Link } from '../Typography/Text'
+import { Text, Link } from '../design-system/Typography/Text'
 
 export default function EditableLabel(
   props: JSX.InputHTMLAttributes<HTMLInputElement> & {

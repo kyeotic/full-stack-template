@@ -1,6 +1,6 @@
 import { Show, type JSX, type ParentProps } from 'solid-js'
 import { Portal } from 'solid-js/web'
-import { bgStyle } from '../color'
+import { bgStyle } from '../design-system/color'
 
 export const MODAL_ROOT_ID = 'modal-root'
 

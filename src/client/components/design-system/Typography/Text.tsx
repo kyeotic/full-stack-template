@@ -1,13 +1,25 @@
 import classnames from 'classnames'
 import { type JSX, type ParentProps, splitProps } from 'solid-js'
-import { bodyStyle } from './font'
+import { bodyStyle, mutedStyle, strongStyle } from './font'
 import { A } from '@solidjs/router'
 
-type Props = ParentProps & { class?: string }
+type Props = ParentProps & {
+  class?: string
+  // De-emphasized text (hints, captions, secondary status).
+  muted?: boolean
+  // Emphasized text (names, key values).
+  strong?: boolean
+}
+
+function textStyle(props: Props): string {
+  if (props.strong) return strongStyle()
+  if (props.muted) return mutedStyle()
+  return bodyStyle()
+}
 
 export function Text(props: Props): JSX.Element {
-  const [local, rest] = splitProps(props, ['class'])
-  return <span class={classnames(local.class, bodyStyle())} {...rest} />
+  const [local, rest] = splitProps(props, ['class', 'muted', 'strong'])
+  return <span class={classnames(textStyle(local), local.class)} {...rest} />
 }
 
 export function Paragraph(props: Props): JSX.Element {

@@ -1,6 +1,6 @@
 import { type JSX, type ParentProps } from 'solid-js'
 import classnames from 'classnames'
-import { bodyStyle } from '../Typography/font'
+import { bodyStyle } from '../design-system/Typography/font'
 
 export default function Label(
   props: ParentProps & {

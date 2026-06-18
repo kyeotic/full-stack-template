@@ -1,5 +1,5 @@
 import { JSX } from 'solid-js'
-import { Text } from './Typography/Text'
+import { Text } from './design-system/Typography/Text'
 
 type InputEvent = JSX.ChangeEventHandler<HTMLInputElement, Event>
 type InputEventParam = Parameters<InputEvent>[0]

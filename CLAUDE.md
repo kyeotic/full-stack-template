@@ -80,9 +80,14 @@ This is a full-stack SolidJS + Cloudflare Workers app using tRPC for type-safe R
 
 ## UI Components & Reuse
 
+**Read [`src/client/components/design-system/Styleguide.md`](src/client/components/design-system/Styleguide.md) before writing UI.** It is the source of truth for widths/layout, typography, font/color, and surface (rounding/border/callout) conventions, with do/don't examples.
+
 The client has a shared component library under `src/client/components/` (barrel-exported from `src/client/components/index.ts`). **Reuse these instead of writing raw HTML elements with hand-rolled Tailwind classes** — they encode the dark-mode-aware colors, spacing, and typography for the app.
 
-- **Typography** (`components/Typography/`): use `H1`–`H6` for headings, and `Text` / `Paragraph` for body copy. These apply `bodyStyle()` / `headerStyle()` from `font.ts`, which include the `dark:` text colors. Do **not** use bare `<p>`/`<span>`/`<label>` for visible text — they inherit near-black and disappear in dark mode.
+- **Surfaces** (`components/design-system/styles.ts`): use `cardStyle`, `calloutStyle`, `borderStyle`, `dividerStyle`, `fieldStyle`, and the `radius` scale instead of inlining `rounded-*`/`border-*` classes.
+- Default elements to full width; constrain with flex/grid, not fixed widths (`w-48`/`w-64`).
+
+- **Typography** (`components/design-system/Typography/`): use `H1`–`H6` for headings, and `Text` / `Paragraph` for body copy (`Text` takes `muted` / `strong` props). These apply `bodyStyle()` / `headerStyle()` from `font.ts`, which include the `dark:` text colors. Do **not** use bare `<p>`/`<span>`/`<label>` for visible text — they inherit near-black and disappear in dark mode.
 - **Forms** (`components/Forms/`): `TextInput`, `Select`, `ColorPicker`, `MultiSelect`, `EditableLabel`. Forms are built with `solid-forms` (`createFormGroup` / `createFormControl`); controls are passed via the `control` prop. Any custom `<input>`/`<select>` must match `TextInput`'s field styling so heights/borders align in a row.
 - **Other**: `Button` (variant/`primary`/`danger`/`small` props), `Label`, `LabelItem`, `Modal`, `PageLoader`, `SpinnerIcon`, `Toggle`, `ThemeToggle`, and `toast` for notifications.
 
