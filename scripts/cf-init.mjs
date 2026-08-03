@@ -8,7 +8,6 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const BINDING = 'APP_NAME_KV'
 const PROD_PLACEHOLDER = '<prod-namespace-id>'
 const PREVIEW_PLACEHOLDER = '<preview-namespace-id>'
 const ID_RE = /[0-9a-f]{32}/i
@@ -25,8 +24,18 @@ if (!config.includes(PROD_PLACEHOLDER)) {
   process.exit(0)
 }
 
+// The CF namespace title must be derived from the app's own name, not the
+// (intentionally unreplaced) APP_NAME_KV binding constant — otherwise every
+// clone of this template creates a namespace literally titled "APP_NAME_KV",
+// colliding with every other clone in the same Cloudflare account.
+const nameMatch = config.match(/"name"\s*:\s*"([^"]+)"/)
+if (!nameMatch) {
+  throw new Error('Could not find "name" field in wrangler.jsonc')
+}
+const NAMESPACE_TITLE = `${nameMatch[1]}-kv`
+
 function createNamespace(preview) {
-  const cmd = `npx wrangler kv namespace create ${BINDING}${preview ? ' --preview' : ''}`
+  const cmd = `npx wrangler kv namespace create ${NAMESPACE_TITLE}${preview ? ' --preview' : ''}`
   console.log(`\n$ ${cmd}`)
   const out = execSync(cmd, { encoding: 'utf8' })
   process.stdout.write(out)
